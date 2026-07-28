@@ -33,9 +33,6 @@ function App() {
     } catch (e) {
       setCommentInput(e.message)
     }
-
-
-
   }
 
   return (
