@@ -1,44 +1,26 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { CommentContainer } from './Comment.jsx';
-import { useEffect } from 'react';
-import { createComment, getComments } from './api/comments.js';
+import { useComments } from './useComments.js';
 
 function App() {
-    // TODO: Add loading and error states
-    const [error, setError] = useState('');
-    const [commentsData, setCommentsData] = useState([]);
     const [commentInput, setCommentInput] = useState('');
+    const { addComment, commentsData, error, setError } = useComments();
 
-    useEffect(() => {
-        async function getData() {
-            try {
-                let results = await getComments();
-                setCommentsData(results);
-            } catch (e) {
-                setError(e.message);
-            }
-        }
-        getData();
-    }, []);
-
-    const addComment = async (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
         if (!commentInput.trim()) return;
 
         try {
-            let addedComment = await createComment({ text: commentInput });
-            setCommentsData([...commentsData, addedComment]);
-            setCommentInput('');
+            await addComment({ commentInput, setCommentInput });
         } catch (e) {
-            setCommentInput(e.message);
+            setError(e.message);
         }
     };
-
     return (
         <div className="App">
-            <form className="form" onSubmit={(e) => addComment(e)}>
+            <form className="form" onSubmit={(e) => handleSubmit(e)}>
                 {/* TODO: Add loading & error state */}
-                <label for="comment">Enter comment:</label>
+                <label htmlFor="comment">Enter comment:</label>
                 <textarea
                     className="textInput"
                     rows="3"
