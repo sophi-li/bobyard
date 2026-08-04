@@ -10,7 +10,7 @@ export function timeAgo(dateString) {
         { label: 'day', secs: 86400 },
         { label: 'hour', secs: 3600 },
         { label: 'minute', secs: 60 },
-        { label: 'second', secs: 1 },
+        { label: 'second', secs: 1 }
     ];
 
     for (const { label, secs } of intervals) {

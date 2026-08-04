@@ -22,44 +22,50 @@ db.exec(`
 `);
 
 // Only seed if table tis empty
-const rowCount = db.prepare('SELECT COUNT(*) as count FROM comments').get().count;
+const rowCount = db
+  .prepare('SELECT COUNT(*) as count FROM comments')
+  .get().count;
 if (rowCount === 0) {
-    const insert = db.prepare('INSERT INTO comments (author, text, date, likes, image) VALUES (?, ?, ?, ?, ?)');
-    const seedTransaction = db.transaction((comments) => {
-        for (const comment of comments) {
-            insert.run(comment.author, comment.text, comment.date, comment.likes, comment.image);
-        }
-    });
+  const insert = db.prepare(
+    'INSERT INTO comments (author, text, date, likes, image) VALUES (?, ?, ?, ?, ?)'
+  );
+  const seedTransaction = db.transaction((comments) => {
+    for (const comment of comments) {
+      insert.run(
+        comment.author,
+        comment.text,
+        comment.date,
+        comment.likes,
+        comment.image
+      );
+    }
+  });
 
-    seedTransaction(comments);
-    console.log('Database pre-seeded with initial data.');
+  seedTransaction(comments);
+  console.log('Database pre-seeded with initial data.');
 }
-
 
 // get all comments
 app.get('/comments', (req, res) => {
-    const items = db.prepare('SELECT * FROM comments').all();
-    res.json(items);
+  const items = db.prepare('SELECT * FROM comments').all();
+  res.json(items);
 });
 
 // add a comment
 app.post('/comments', (req, res) => {
-    const { text, author } = req.body;
-    if (!text) return res.status(400).json({ error: "text is required" });
-    if (!author) return res.status(400).json({ error: "author is required" });
+  const { text, author } = req.body;
+  if (!text) return res.status(400).json({ error: 'text is required' });
+  if (!author) return res.status(400).json({ error: 'author is required' });
 
-    const stmt = db.prepare('INSERT INTO comments (author, text, date, likes, image) VALUES (?, ?, ?, ?, ?)');
-    const info = stmt.run(
-        author,
-        text,
-        new Date().toISOString(),
-        0,
-        ''
-    );
+  const stmt = db.prepare(
+    'INSERT INTO comments (author, text, date, likes, image) VALUES (?, ?, ?, ?, ?)'
+  );
+  const info = stmt.run(author, text, new Date().toISOString(), 0, '');
 
-    const newComment = db.prepare('SELECT * FROM comments WHERE id = ?').get(info.lastInsertRowid);
-    res.status(201).json(newComment);
+  const newComment = db
+    .prepare('SELECT * FROM comments WHERE id = ?')
+    .get(info.lastInsertRowid);
+  res.status(201).json(newComment);
 });
-
 
 app.listen(3001, () => console.log('API running on http://localhost:3001'));
