@@ -1,10 +1,8 @@
 import express from 'express';
 import cors from 'cors';
 import Database from 'better-sqlite3';
-// import { seedData } from './seedData.js';
 import { commentsThreaded } from './comments_threaded.js';
 
-// const comments = seedData.comments;
 const comments = commentsThreaded.comments;
 const app = express();
 
@@ -71,6 +69,22 @@ app.post('/comments', (req, res) => {
     .prepare('SELECT * FROM comments WHERE id = ?')
     .get(info.lastInsertRowid);
   res.status(201).json(newComment);
+});
+
+// like comment
+app.patch('/comments/:id', (req, res) => {
+  const { id } = req.params;
+  if (!id) return res.status(400).json({ error: 'id is required' });
+
+  const stmt = db.prepare('UPDATE comments SET likes = likes + 1 WHERE id = ?');
+  const info = stmt.run(id);
+
+  if (info.changes === 0) {
+    return res.status(404).json({ error: 'Comment not found' });
+  }
+
+  const newComment = db.prepare('SELECT * FROM comments WHERE id = ?').get(id);
+  res.status(200).json(newComment);
 });
 
 app.listen(3001, () => console.log('API running on http://localhost:3001'));

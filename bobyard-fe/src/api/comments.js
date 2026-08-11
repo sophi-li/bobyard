@@ -23,3 +23,21 @@ export async function createComment({ text, parent }) {
   const addedComment = await response.json();
   return addedComment;
 }
+
+export async function likeComment({ id }) {
+  let response = await fetch(`${BASE_URL}/comments/${id}`, {
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json' }
+  });
+
+  if (!response.ok) {
+    throw new Error(
+      `Error. Status: ${response.status}. Failed to like comment`
+    );
+  }
+
+  const likedComment = await response.json();
+  return likedComment;
+
+  return addedComment;
+}

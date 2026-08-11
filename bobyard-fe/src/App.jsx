@@ -4,8 +4,14 @@ import { useComments } from './useComments.js';
 
 function App() {
   const [commentInput, setCommentInput] = useState('');
-  const { addComment, commentsData, error, setError, isLoading } =
-    useComments();
+  const {
+    addComment,
+    commentsData,
+    error,
+    setError,
+    isLoading,
+    handleLikeComment
+  } = useComments();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
@@ -38,7 +44,13 @@ function App() {
 
       {commentsData.length !== 0 &&
         commentsData.map((comment) => {
-          return <CommentContainer comment={comment} key={comment.id} />;
+          return (
+            <CommentContainer
+              comment={comment}
+              key={comment.id}
+              handleLikeComment={handleLikeComment}
+            />
+          );
         })}
     </div>
   );

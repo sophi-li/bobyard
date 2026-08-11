@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { createComment, getComments } from './api/comments.js';
+import { createComment, getComments, likeComment } from './api/comments.js';
 import { orderComments } from './orderComments.js';
 
 export function useComments() {
@@ -30,5 +30,21 @@ export function useComments() {
     setCommentInput('');
   };
 
-  return { addComment, commentsData, error, setError, isLoading };
+  const handleLikeComment = async ({ id }) => {
+    let likedComment = await likeComment({ id });
+    let newComments = commentsData.map((c) =>
+      c.id === id ? { ...c, ...likedComment } : c
+    );
+
+    setCommentsData(newComments);
+  };
+
+  return {
+    addComment,
+    handleLikeComment,
+    commentsData,
+    error,
+    setError,
+    isLoading
+  };
 }
