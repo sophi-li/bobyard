@@ -4,7 +4,8 @@ import { useComments } from './useComments.js';
 
 function App() {
   const [commentInput, setCommentInput] = useState('');
-  const { addComment, commentsData, error, setError } = useComments();
+  const { addComment, commentsData, error, setError, isLoading } =
+    useComments();
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!commentInput.trim()) return;
@@ -19,7 +20,6 @@ function App() {
   return (
     <div className="App">
       <form className="form" onSubmit={(e) => handleSubmit(e)}>
-        {/* TODO: Add loading & error state */}
         <label htmlFor="comment">Enter comment:</label>
         <textarea
           className="textInput"
@@ -33,6 +33,8 @@ function App() {
           Submit
         </button>
       </form>
+      {error && <p>{error}</p>}
+      {isLoading && <p>Loading comments...</p>}
 
       {commentsData.length !== 0 &&
         commentsData.map((comment) => {

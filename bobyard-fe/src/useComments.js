@@ -3,18 +3,22 @@ import { createComment, getComments } from './api/comments.js';
 import { orderComments } from './orderComments.js';
 
 export function useComments() {
-  // TODO: Add loading and error states
-  const [error, setError] = useState('');
+  const [error, setError] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
   const [commentsData, setCommentsData] = useState([]);
 
   useEffect(() => {
     async function getData() {
       try {
+        setIsLoading(true);
         let results = await getComments();
         let orderedComments = orderComments(results);
         setCommentsData(orderedComments);
+        setError(null);
       } catch (e) {
         setError(e.message);
+      } finally {
+        setIsLoading(false);
       }
     }
     getData();
@@ -26,5 +30,5 @@ export function useComments() {
     setCommentInput('');
   };
 
-  return { addComment, commentsData, error, setError };
+  return { addComment, commentsData, error, setError, isLoading };
 }
