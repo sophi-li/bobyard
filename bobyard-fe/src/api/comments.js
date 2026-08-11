@@ -24,10 +24,11 @@ export async function createComment({ text, parent }) {
   return addedComment;
 }
 
-export async function likeComment({ id }) {
+export async function likeComment({ id, likes }) {
   let response = await fetch(`${BASE_URL}/comments/${id}`, {
     method: 'PATCH',
-    headers: { 'Content-Type': 'application/json' }
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ likes })
   });
 
   if (!response.ok) {

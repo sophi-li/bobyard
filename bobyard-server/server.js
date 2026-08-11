@@ -71,15 +71,26 @@ app.post('/comments', (req, res) => {
   res.status(201).json(newComment);
 });
 
-// like comment
+// update comment likes
 app.patch('/comments/:id', (req, res) => {
   const { id } = req.params;
+  // Route params are always strings, even for garbage input, so this is the
+  // real numeric check (not just a truthiness check on `id`).
   if (!/^\d+$/.test(id)) {
     return res.status(400).json({ error: 'id must be numeric' });
   }
 
-  const stmt = db.prepare('UPDATE comments SET likes = likes + 1 WHERE id = ?');
-  const info = stmt.run(id);
+  const { likes } = req.body;
+  if (!Number.isInteger(likes) || likes < 0) {
+    return res
+      .status(400)
+      .json({ error: 'likes must be a non-negative integer' });
+  }
+
+  // Sets the absolute value the client computed, rather than incrementing
+  // server-side, so repeating this request is idempotent.
+  const stmt = db.prepare('UPDATE comments SET likes = ? WHERE id = ?');
+  const info = stmt.run(likes, id);
 
   if (info.changes === 0) {
     return res.status(404).json({ error: 'Comment not found' });

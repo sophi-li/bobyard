@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react';
 import { createComment, getComments, likeComment } from './api/comments.js';
 import { orderComments } from './orderComments.js';
 
+const replaceCommentById = (comments, id, patch) =>
+  comments.map((c) => (c.id === id ? { ...c, ...patch } : c));
+
 export function useComments() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -32,14 +35,20 @@ export function useComments() {
   };
 
   const handleLikeComment = async ({ id }) => {
+    // Blocks a second click from firing before the disabled button re-renders.
     if (likingCommentIds.has(id)) return;
+
+    let comment = commentsData.find((c) => c.id === id);
+    if (!comment) return;
 
     setLikingCommentIds((prev) => new Set(prev).add(id));
     try {
-      let likedComment = await likeComment({ id });
-      setCommentsData((prev) =>
-        prev.map((c) => (c.id === id ? { ...c, ...likedComment } : c))
-      );
+      // The PATCH is idempotent (sets an absolute value), so we compute the
+      // target count here instead of asking the server to increment.
+      let likedComment = await likeComment({ id, likes: comment.likes + 1 });
+      // Functional update: avoids clobbering a like on another comment that
+      // resolved in between this request's start and finish.
+      setCommentsData((prev) => replaceCommentById(prev, id, likedComment));
     } catch (e) {
       setError(e.message);
     } finally {
