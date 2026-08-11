@@ -4,15 +4,19 @@ import { useComments } from './useComments.js';
 
 function App() {
   const [commentInput, setCommentInput] = useState('');
+  const [replyingToId, setReplyingToId] = useState(null);
+  const [replyInput, setReplyInput] = useState('');
   const {
     addComment,
+    addReply,
     commentsData,
     error,
     setError,
     isLoading,
     handleLikeComment,
     likingCommentIds,
-    isSubmitting
+    isSubmitting,
+    isReplying
   } = useComments();
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -22,6 +26,25 @@ function App() {
       await addComment({ commentInput, setCommentInput });
     } catch (e) {
       setError(e.message);
+    }
+  };
+
+  const handleToggleReply = (id) => {
+    setReplyingToId((prev) => (prev === id ? null : id));
+    setReplyInput('');
+  };
+
+  const handleReplySubmit = async (e, parentId) => {
+    e.preventDefault();
+    if (!replyInput.trim() || isReplying) return;
+
+    try {
+      await addReply({ parentId, text: replyInput });
+      // Only clear on success so a failed reply stays open for retry.
+      setReplyInput('');
+      setReplyingToId(null);
+    } catch (e) {
+      // error already surfaced via setError inside addReply
     }
   };
 
@@ -52,6 +75,12 @@ function App() {
               key={comment.id}
               handleLikeComment={handleLikeComment}
               isLiking={likingCommentIds.has(comment.id)}
+              isReplyOpen={replyingToId === comment.id}
+              onToggleReply={handleToggleReply}
+              replyInput={replyInput}
+              onReplyInputChange={setReplyInput}
+              onReplySubmit={handleReplySubmit}
+              isReplying={isReplying}
             />
           );
         })}

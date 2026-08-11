@@ -2,7 +2,17 @@ import React from 'react';
 import anonAvatar from './assets/anonAvatar.png';
 import { timeAgo } from './timeAgo.js';
 
-export function CommentContainer({ comment, handleLikeComment, isLiking }) {
+export function CommentContainer({
+  comment,
+  handleLikeComment,
+  isLiking,
+  isReplyOpen,
+  onToggleReply,
+  replyInput,
+  onReplyInputChange,
+  onReplySubmit,
+  isReplying
+}) {
   const { author, parent, id, depth, text, likes, replyingTo } = comment;
   let avatar = comment.image !== '' ? comment.image : anonAvatar;
   let time = timeAgo(comment.date);
@@ -51,7 +61,41 @@ export function CommentContainer({ comment, handleLikeComment, isLiking }) {
           >
             👍
           </button>
+          <button onClick={() => onToggleReply(id)} className="replyBtn">
+            Reply
+          </button>
         </span>
+        {isReplyOpen && (
+          <form
+            className="replyForm"
+            onSubmit={(e) => onReplySubmit(e, id)}
+          >
+            <textarea
+              className="replyInput"
+              rows="4"
+              autoFocus
+              value={replyInput}
+              placeholder={`Reply to ${author}...`}
+              onChange={(e) => onReplyInputChange(e.target.value)}
+            />
+            <div className="replyFormActions">
+              <button
+                type="button"
+                onClick={() => onToggleReply(id)}
+                className="cancelReplyBtn"
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="replySubmitBtn"
+                disabled={isReplying}
+              >
+                Submit
+              </button>
+            </div>
+          </form>
+        )}
       </div>
     </div>
   );

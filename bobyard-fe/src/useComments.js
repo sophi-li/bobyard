@@ -11,6 +11,7 @@ export function useComments() {
   const [commentsData, setCommentsData] = useState([]);
   const [likingCommentIds, setLikingCommentIds] = useState(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isReplying, setIsReplying] = useState(false);
 
   useEffect(() => {
     async function getData() {
@@ -46,6 +47,25 @@ export function useComments() {
     }
   };
 
+  const addReply = async ({ parentId, text }) => {
+    // Blocks a second submit from firing before the disabled button re-renders.
+    if (isReplying) return;
+
+    setIsReplying(true);
+    try {
+      let addedComment = await createComment({ text, parent: parentId });
+      // Re-running orderComments (instead of appending with a guessed depth)
+      // slots the reply under its parent and recomputes replyingTo for it,
+      // so it shows up correctly without a refetch.
+      setCommentsData((prev) => orderComments([...prev, addedComment]));
+    } catch (e) {
+      setError(e.message);
+      throw e;
+    } finally {
+      setIsReplying(false);
+    }
+  };
+
   const handleLikeComment = async ({ id }) => {
     // Blocks a second click from firing before the disabled button re-renders.
     if (likingCommentIds.has(id)) return;
@@ -71,12 +91,14 @@ export function useComments() {
 
   return {
     addComment,
+    addReply,
     handleLikeComment,
     commentsData,
     error,
     setError,
     isLoading,
     likingCommentIds,
-    isSubmitting
+    isSubmitting,
+    isReplying
   };
 }

@@ -155,7 +155,9 @@ p {
 .commentBody {
   display: flex;
   justify-content: flex-start;
-  flex-direction: column
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
 }
 
 .headerRow {
@@ -186,4 +188,49 @@ p {
   padding: 0;
   cursor: pointer;
   margin-left: 5px;
+}
+
+.replyBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  margin-left: 12px;
+  color: var(--accent);
+}
+
+.replyForm {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-top: 8px;
+  width: 100%;
+}
+
+.replyInput {
+  width: 100%;
+  height: 180px;
+  box-sizing: border-box;
+}
+
+.replyFormActions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.cancelReplyBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--text);
+}
+
+.replySubmitBtn {
+  margin-top: 6px;
+  border: 1px solid black;
+  border-radius: 5px;
+  padding: 4px 12px;
 }
