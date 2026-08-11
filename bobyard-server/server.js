@@ -1,9 +1,11 @@
 import express from 'express';
 import cors from 'cors';
 import Database from 'better-sqlite3';
-import { seedData } from './seedData.js';
+// import { seedData } from './seedData.js';
+import { commentsThreaded } from './comments_threaded.js';
 
-const comments = seedData.comments;
+// const comments = seedData.comments;
+const comments = commentsThreaded.comments;
 const app = express();
 
 app.use(cors());
@@ -13,6 +15,7 @@ const db = new Database('bobyard.db');
 db.exec(`
   CREATE TABLE IF NOT EXISTS comments (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
+    parent INTEGER,
     author TEXT NOT NULL,
     text TEXT NOT NULL,
     date TEXT NOT NULL,
@@ -27,11 +30,13 @@ const rowCount = db
   .get().count;
 if (rowCount === 0) {
   const insert = db.prepare(
-    'INSERT INTO comments (author, text, date, likes, image) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO comments (id, parent, author, text, date, likes, image) VALUES (?, ?, ?, ?, ?, ?, ?)'
   );
   const seedTransaction = db.transaction((comments) => {
     for (const comment of comments) {
       insert.run(
+        comment.id,
+        comment.parent,
         comment.author,
         comment.text,
         comment.date,
@@ -53,14 +58,14 @@ app.get('/comments', (req, res) => {
 
 // add a comment
 app.post('/comments', (req, res) => {
-  const { text, author } = req.body;
+  const { text, author, parent } = req.body;
   if (!text) return res.status(400).json({ error: 'text is required' });
   if (!author) return res.status(400).json({ error: 'author is required' });
 
   const stmt = db.prepare(
-    'INSERT INTO comments (author, text, date, likes, image) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO comments (parent, author, text, date, likes, image) VALUES (?, ?, ?, ?, ?, ?)'
   );
-  const info = stmt.run(author, text, new Date().toISOString(), 0, '');
+  const info = stmt.run(parent, author, text, new Date().toISOString(), 0, '');
 
   const newComment = db
     .prepare('SELECT * FROM comments WHERE id = ?')
