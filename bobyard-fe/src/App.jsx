@@ -11,11 +11,12 @@ function App() {
     setError,
     isLoading,
     handleLikeComment,
-    likingCommentIds
+    likingCommentIds,
+    isSubmitting
   } = useComments();
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!commentInput.trim()) return;
+    if (!commentInput.trim() || isSubmitting) return;
 
     try {
       await addComment({ commentInput, setCommentInput });
@@ -36,7 +37,7 @@ function App() {
           placeholder="Type comment..."
           onChange={(e) => setCommentInput(e.target.value)}
         />
-        <button type="submit" className="submitBtn">
+        <button type="submit" className="submitBtn" disabled={isSubmitting}>
           Submit
         </button>
       </form>

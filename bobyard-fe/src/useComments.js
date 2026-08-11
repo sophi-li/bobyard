@@ -10,6 +10,7 @@ export function useComments() {
   const [isLoading, setIsLoading] = useState(false);
   const [commentsData, setCommentsData] = useState([]);
   const [likingCommentIds, setLikingCommentIds] = useState(new Set());
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
     async function getData() {
@@ -29,9 +30,20 @@ export function useComments() {
   }, []);
 
   const addComment = async ({ commentInput, setCommentInput }) => {
-    let addedComment = await createComment({ text: commentInput, parent: '' });
-    setCommentsData([...commentsData, { ...addedComment, depth: 0 }]);
-    setCommentInput('');
+    // Blocks a second submit from firing before the disabled button re-renders.
+    if (isSubmitting) return;
+
+    setIsSubmitting(true);
+    try {
+      let addedComment = await createComment({
+        text: commentInput,
+        parent: ''
+      });
+      setCommentsData((prev) => [...prev, { ...addedComment, depth: 0 }]);
+      setCommentInput('');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   const handleLikeComment = async ({ id }) => {
@@ -43,11 +55,8 @@ export function useComments() {
 
     setLikingCommentIds((prev) => new Set(prev).add(id));
     try {
-      // The PATCH is idempotent (sets an absolute value), so we compute the
-      // target count here instead of asking the server to increment.
       let likedComment = await likeComment({ id, likes: comment.likes + 1 });
-      // Functional update: avoids clobbering a like on another comment that
-      // resolved in between this request's start and finish.
+      // Avoids clobbering a like on another comment that resolved in between this request's start and finish.
       setCommentsData((prev) => replaceCommentById(prev, id, likedComment));
     } catch (e) {
       setError(e.message);
@@ -67,6 +76,7 @@ export function useComments() {
     error,
     setError,
     isLoading,
-    likingCommentIds
+    likingCommentIds,
+    isSubmitting
   };
 }

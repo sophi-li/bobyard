@@ -60,6 +60,20 @@ app.post('/comments', (req, res) => {
   if (!text) return res.status(400).json({ error: 'text is required' });
   if (!author) return res.status(400).json({ error: 'author is required' });
 
+  // Empty string means top-level; anything else must reference a real
+  // comment, or it silently vanishes from the tree orderComments builds.
+  if (parent !== '') {
+    if (!/^\d+$/.test(String(parent))) {
+      return res.status(400).json({ error: 'parent must be numeric or empty' });
+    }
+    const parentExists = db
+      .prepare('SELECT 1 FROM comments WHERE id = ?')
+      .get(parent);
+    if (!parentExists) {
+      return res.status(400).json({ error: 'parent comment not found' });
+    }
+  }
+
   const stmt = db.prepare(
     'INSERT INTO comments (parent, author, text, date, likes, image) VALUES (?, ?, ?, ?, ?, ?)'
   );
@@ -87,8 +101,6 @@ app.patch('/comments/:id', (req, res) => {
       .json({ error: 'likes must be a non-negative integer' });
   }
 
-  // Sets the absolute value the client computed, rather than incrementing
-  // server-side, so repeating this request is idempotent.
   const stmt = db.prepare('UPDATE comments SET likes = ? WHERE id = ?');
   const info = stmt.run(likes, id);
 
