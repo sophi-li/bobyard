@@ -74,7 +74,9 @@ app.post('/comments', (req, res) => {
 // like comment
 app.patch('/comments/:id', (req, res) => {
   const { id } = req.params;
-  if (!id) return res.status(400).json({ error: 'id is required' });
+  if (!/^\d+$/.test(id)) {
+    return res.status(400).json({ error: 'id must be numeric' });
+  }
 
   const stmt = db.prepare('UPDATE comments SET likes = likes + 1 WHERE id = ?');
   const info = stmt.run(id);

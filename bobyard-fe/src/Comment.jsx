@@ -1,9 +1,8 @@
 import React from 'react';
 import anonAvatar from './assets/anonAvatar.png';
 import { timeAgo } from './timeAgo.js';
-import { useComments } from './useComments.js';
 
-export function CommentContainer({ comment, handleLikeComment }) {
+export function CommentContainer({ comment, handleLikeComment, isLiking }) {
   const { author, parent, id, depth, text, likes } = comment;
   let avatar = comment.image !== '' ? comment.image : anonAvatar;
   let time = timeAgo(comment.date);
@@ -34,9 +33,12 @@ export function CommentContainer({ comment, handleLikeComment }) {
           <p>{text}</p>
         </div>
         <span className="bottomRow">
-          {/* TODO: Add like update */}
           {likes}{' '}
-          <button onClick={() => handleLikeComment({ id })} className="likeBtn">
+          <button
+            onClick={() => handleLikeComment({ id })}
+            className="likeBtn"
+            disabled={isLiking}
+          >
             👍
           </button>
         </span>

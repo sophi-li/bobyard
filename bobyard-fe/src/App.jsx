@@ -10,7 +10,8 @@ function App() {
     error,
     setError,
     isLoading,
-    handleLikeComment
+    handleLikeComment,
+    likingCommentIds
   } = useComments();
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -49,6 +50,7 @@ function App() {
               comment={comment}
               key={comment.id}
               handleLikeComment={handleLikeComment}
+              isLiking={likingCommentIds.has(comment.id)}
             />
           );
         })}

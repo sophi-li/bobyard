@@ -38,6 +38,4 @@ export async function likeComment({ id }) {
 
   const likedComment = await response.json();
   return likedComment;
-
-  return addedComment;
 }

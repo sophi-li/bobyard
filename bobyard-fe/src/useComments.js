@@ -6,6 +6,7 @@ export function useComments() {
   const [error, setError] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [commentsData, setCommentsData] = useState([]);
+  const [likingCommentIds, setLikingCommentIds] = useState(new Set());
 
   useEffect(() => {
     async function getData() {
@@ -31,12 +32,23 @@ export function useComments() {
   };
 
   const handleLikeComment = async ({ id }) => {
-    let likedComment = await likeComment({ id });
-    let newComments = commentsData.map((c) =>
-      c.id === id ? { ...c, ...likedComment } : c
-    );
+    if (likingCommentIds.has(id)) return;
 
-    setCommentsData(newComments);
+    setLikingCommentIds((prev) => new Set(prev).add(id));
+    try {
+      let likedComment = await likeComment({ id });
+      setCommentsData((prev) =>
+        prev.map((c) => (c.id === id ? { ...c, ...likedComment } : c))
+      );
+    } catch (e) {
+      setError(e.message);
+    } finally {
+      setLikingCommentIds((prev) => {
+        let next = new Set(prev);
+        next.delete(id);
+        return next;
+      });
+    }
   };
 
   return {
@@ -45,6 +57,7 @@ export function useComments() {
     commentsData,
     error,
     setError,
-    isLoading
+    isLoading,
+    likingCommentIds
   };
 }
