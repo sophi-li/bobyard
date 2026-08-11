@@ -144,6 +144,14 @@ p {
   padding: 20px 0;
 }
 
+.replyingTo {
+  font-size: 0.85rem;
+  font-style: italic;
+  color: var(--text);
+  margin-bottom: 4px;
+  text-align: left;
+}
+
 .commentBody {
   display: flex;
   justify-content: flex-start;

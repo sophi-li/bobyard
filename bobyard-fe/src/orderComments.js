@@ -14,14 +14,14 @@ export const orderComments = (comments) => {
   let sortedComments = [];
 
   // keep adding children
-  const addComment = (comment, depth) => {
-    sortedComments.push({ ...comment, depth });
+  const addComment = (comment, depth, replyingTo) => {
+    sortedComments.push({ ...comment, depth, replyingTo });
 
     let children = groupedChildrenByParentId[comment.id];
     if (children !== undefined) {
       for (let k = 0; k < children.length; k++) {
         // grandchildren
-        addComment(children[k], depth + 1);
+        addComment(children[k], depth + 1, comment.author);
       }
     }
   };
@@ -30,7 +30,7 @@ export const orderComments = (comments) => {
   let topLevelParents = groupedChildrenByParentId[''];
   if (topLevelParents !== undefined) {
     for (let j = 0; j < topLevelParents.length; j++) {
-      addComment(topLevelParents[j], 0);
+      addComment(topLevelParents[j], 0, null);
     }
   }
 

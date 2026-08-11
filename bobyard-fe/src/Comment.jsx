@@ -3,13 +3,20 @@ import anonAvatar from './assets/anonAvatar.png';
 import { timeAgo } from './timeAgo.js';
 
 export function CommentContainer({ comment, handleLikeComment, isLiking }) {
-  const { author, parent, id, depth, text, likes } = comment;
+  const { author, parent, id, depth, text, likes, replyingTo } = comment;
   let avatar = comment.image !== '' ? comment.image : anonAvatar;
   let time = timeAgo(comment.date);
   let depthPx = `${depth * 30}px`;
 
   return (
-    <div className="commentContainer" style={{ marginLeft: depthPx }}>
+    <div
+      className="commentContainer"
+      style={{
+        marginLeft: depthPx,
+        borderLeft: depth > 0 ? '2px solid var(--border)' : 'none',
+        paddingLeft: depth > 0 ? '12px' : 0
+      }}
+    >
       <div className="imgContainer">
         <img
           src={avatar}
@@ -22,6 +29,9 @@ export function CommentContainer({ comment, handleLikeComment, isLiking }) {
         ></img>
       </div>
       <div className="commentBody">
+        {depth > 0 && (
+          <p className="replyingTo">Replying to @{replyingTo}</p>
+        )}
         <div className="headerRow">
           <span>{author}</span>
           <time className="time" dateTime={time}>
