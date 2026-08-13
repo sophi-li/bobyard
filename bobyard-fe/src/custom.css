@@ -129,6 +129,41 @@ p {
   align-items: center;
 }
 
+.authForm {
+  max-width: 320px;
+}
+
+.authError {
+  color: #d33;
+  font-size: 0.9rem;
+  margin: 4px 0;
+}
+
+.authToggleBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  margin-top: 12px;
+  cursor: pointer;
+  color: var(--accent);
+}
+
+.authStatusRow {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.logoutBtn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--accent);
+}
+
 /* COMMENT */
 .imgContainer {
   margin-right: 20px;

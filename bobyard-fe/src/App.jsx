@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react';
 import { CommentContainer } from './Comment.jsx';
+import { AuthForm } from './AuthForm.jsx';
 import { useComments } from './useComments.js';
+import { useAuth } from './useAuth.js';
 
 function App() {
   const [commentInput, setCommentInput] = useState('');
@@ -18,6 +20,16 @@ function App() {
     isSubmitting,
     isReplying
   } = useComments();
+  const {
+    currentUser,
+    isAuthLoading,
+    authError,
+    setAuthError,
+    login,
+    signup,
+    logout
+  } = useAuth();
+  const isAuthenticated = !!currentUser;
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!commentInput.trim() || isSubmitting) return;
@@ -50,20 +62,39 @@ function App() {
 
   return (
     <div className="App">
-      <form className="form" onSubmit={(e) => handleSubmit(e)}>
-        <label htmlFor="comment">Enter comment:</label>
-        <textarea
-          className="textInput"
-          rows="3"
-          id="comment"
-          value={commentInput}
-          placeholder="Type comment..."
-          onChange={(e) => setCommentInput(e.target.value)}
-        />
-        <button type="submit" className="submitBtn" disabled={isSubmitting}>
-          Submit
-        </button>
-      </form>
+      {!isAuthLoading &&
+        (isAuthenticated ? (
+          <div className="authStatusRow">
+            <span>Logged in as {currentUser.username}</span>
+            <button className="logoutBtn" onClick={logout}>
+              Logout
+            </button>
+          </div>
+        ) : (
+          <AuthForm
+            onLogin={login}
+            onSignup={signup}
+            authError={authError}
+            setAuthError={setAuthError}
+          />
+        ))}
+
+      {isAuthenticated && (
+        <form className="form" onSubmit={(e) => handleSubmit(e)}>
+          <label htmlFor="comment">Enter comment:</label>
+          <textarea
+            className="textInput"
+            rows="3"
+            id="comment"
+            value={commentInput}
+            placeholder="Type comment..."
+            onChange={(e) => setCommentInput(e.target.value)}
+          />
+          <button type="submit" className="submitBtn" disabled={isSubmitting}>
+            Submit
+          </button>
+        </form>
+      )}
       {error && <p>{error}</p>}
       {isLoading && <p>Loading comments...</p>}
 
@@ -81,6 +112,7 @@ function App() {
               onReplyInputChange={setReplyInput}
               onReplySubmit={handleReplySubmit}
               isReplying={isReplying}
+              isAuthenticated={isAuthenticated}
             />
           );
         })}

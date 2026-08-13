@@ -1,8 +1,9 @@
 const BASE_URL = 'http://localhost:3001';
-const ADMIN_USER = 'Admin';
 
 export async function getComments() {
-  let response = await fetch(`${BASE_URL}/comments`);
+  let response = await fetch(`${BASE_URL}/comments`, {
+    credentials: 'include'
+  });
   if (!response.ok) {
     throw new Error(`Error. Status: ${response.status}`);
   }
@@ -15,7 +16,8 @@ export async function createComment({ text, parent }) {
   let response = await fetch(`${BASE_URL}/comments`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ text, author: ADMIN_USER, parent })
+    credentials: 'include',
+    body: JSON.stringify({ text, parent })
   });
   if (!response.ok) {
     throw new Error(`Error. Status: ${response.status}`);
@@ -28,6 +30,7 @@ export async function likeComment({ id, likes }) {
   let response = await fetch(`${BASE_URL}/comments/${id}`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({ likes })
   });
 

@@ -11,7 +11,8 @@ export function CommentContainer({
   replyInput,
   onReplyInputChange,
   onReplySubmit,
-  isReplying
+  isReplying,
+  isAuthenticated
 }) {
   const { author, parent, id, depth, text, likes, replyingTo } = comment;
   let avatar = comment.image !== '' ? comment.image : anonAvatar;
@@ -54,18 +55,22 @@ export function CommentContainer({
         </div>
         <span className="bottomRow">
           {likes}{' '}
-          <button
-            onClick={() => handleLikeComment({ id })}
-            className="likeBtn"
-            disabled={isLiking}
-          >
-            👍
-          </button>
-          <button onClick={() => onToggleReply(id)} className="replyBtn">
-            Reply
-          </button>
+          {isAuthenticated && (
+            <>
+              <button
+                onClick={() => handleLikeComment({ id })}
+                className="likeBtn"
+                disabled={isLiking}
+              >
+                👍
+              </button>
+              <button onClick={() => onToggleReply(id)} className="replyBtn">
+                Reply
+              </button>
+            </>
+          )}
         </span>
-        {isReplyOpen && (
+        {isAuthenticated && isReplyOpen && (
           <form
             className="replyForm"
             onSubmit={(e) => onReplySubmit(e, id)}
